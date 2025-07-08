@@ -1,128 +1,140 @@
 import React, { useState } from 'react';
-import "./App.css"
-import Chicken from "./asset/chicken.jpg"
-import Banana from "./asset/banana.jpg"
+import './App.css';
+import chickenImg from './assets/chicken.jpg';
+import bananaImg from './assets/banana.jpg';
 
-function Board(){
-  const images = Array(18).fill({type: "chicken", img: Chicken})
-  .concat(Array(18).fill({type: "banana", img: Banana}));
+const CHICKEN_IMG = chickenImg;
+const BANANA_IMG = bananaImg;
 
-  //Fisher-Yates (or Knuth) shuffle algorithm
-  for(let i = images.length - 1; i > 0; i--){
+function getShuffledTiles() {
+  const tiles = [
+    ...Array(18).fill({ type: 'chicken', img: CHICKEN_IMG }),
+    ...Array(18).fill({ type: 'banana', img: BANANA_IMG }),
+  ];
+  for (let i = tiles.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [images[i], images[j]] = [images[j], images[i]];
+    [tiles[i], tiles[j]] = [tiles[j], tiles[i]];
   }
-  return images;
+  return tiles;
 }
 
 function App() {
-  const [images, setImages] = useState(Board());
+  const [tiles, setTiles] = useState(getShuffledTiles());
   const [revealed, setRevealed] = useState(Array(36).fill(false));
-  const [player, setPlayer] = useState("chicken");
   const [gameOver, setGameOver] = useState(false);
   const [winner, setWinner] = useState('');
-  const [scores, setScores] = useState({chicken: 0, banana: 0})
+  const [scores, setScores] = useState({ chicken: 0, banana: 0 });
+  const [playerSide, setPlayerSide] = useState(null);
 
-  const chickenLeft = images.filter((tile, i) => tile.type === 'chicken' && !revealed[i]).length;
-  const bananaLeft = images.filter((tile, i) => tile.type === 'banana' && !revealed[i]).length;
+  const remaining = (type) =>
+    tiles.filter((tile, i) => tile.type === type && !revealed[i]).length;
 
-  function tileClick(click){
-    if (gameOver || revealed[click]) return;
+  const handleTileClick = (idx) => {
+    if (gameOver || revealed[idx] || !playerSide) return;
+
+    const tile = tiles[idx];
     const updatedRevealed = [...revealed];
-    updatedRevealed[click] = true;
+    updatedRevealed[idx] = true;
     setRevealed(updatedRevealed);
 
-    if (images[click].type === player){
-      const updatedRevealed = [...revealed];
-      updatedRevealed[click] = true;
-      setRevealed(updatedRevealed);
-
-      if (player === 'chicken' && chickenLeft === 1){
-        setGameOver(true);
-        setWinner('Chicken Player');
-        setScores(prev => ({...prev, chicken: prev.chicken + 1}));
-      } else if(player === 'banana' && bananaLeft === 1){
-        setGameOver(true);
-        setWinner('Banana Player')
-        setScores(prev => ({...prev, banana: prev.banana + 1}));
-      } else{
-        setPlayer(player === "chicken" ? "banana" : "chicken");
-      }
-    } else {
+    if (tile.type !== playerSide) {
       setGameOver(true);
-      const winPlayer = player === 'chicken' ? 'Banana Player' : 'Chicken Player';
-      setWinner(winPlayer);
-      setScores(prev =>
-        player === 'chicken'
-        ? {...prev, banana: prev.banana + 1}
-        : {...prev, chicken: prev.chicken + 1}
-      );
+      const otherSide = playerSide === 'chicken' ? 'Banana Player' : 'Chicken Player';
+      setWinner(otherSide);
+      setScores((prev) => ({
+        ...prev,
+        [playerSide === 'chicken' ? 'banana' : 'chicken']: prev[playerSide === 'chicken' ? 'banana' : 'chicken'] + 1,
+      }));
+      return;
     }
-  }
 
-  function restart(){
-    setImages(Board());
+    if (remaining(playerSide) - 1 === 0) {
+      setGameOver(true);
+      setWinner(playerSide === 'chicken' ? 'Chicken Player' : 'Banana Player');
+      setScores((prev) => ({
+        ...prev,
+        [playerSide]: prev[playerSide] + 1,
+      }));
+    }
+  };
+
+  const handleRestart = () => {
+    setTiles(getShuffledTiles());
     setRevealed(Array(36).fill(false));
     setGameOver(false);
     setWinner('');
-    setPlayer('chicken');
-  }
+    setPlayerSide(null);
+  };
 
+  const handleRevealAll = () => {
+    setRevealed(Array(36).fill(true));
+  };
+
+  const handleResetBoard = () => {
+    setTiles(getShuffledTiles());
+    setRevealed(Array(36).fill(false));
+    setGameOver(false);
+    setWinner('');
+  };
 
   return (
-    <div className='board'>
-      <div className='game-title'>
-        <h1>
-          <span className = "chicken-header" >Chicken </span>
-          <span className='banana-header'>Banana</span>
-          <span className='game-header'> Game</span>
-        </h1>
+    <div className="container">
+      <h1>
+        <span className="chicken-header">Chicken</span>{' '}
+        <span className="and-header">vs</span>{' '}
+        <span className="banana-header">Banana</span>
+      </h1>
+
+      <div className="scoreboard">
+        <span className="score chicken">🐔 {scores.chicken}</span>
+        <span className="score banana">🍌 {scores.banana}</span>
       </div>
-      <div>
-        <b>Score:</b>
-        <span> Chicken: {scores.chicken}</span>
-        <span> | </span>
-        <span> Banana: {scores.banana}</span>
-      </div>
-      <p>
-            Two players: <b>Chicken</b> and <b>Banana</b>.<br />
-            {gameOver
-            ? <span className='winner'>{winner} wins!</span>
-            : <>Current turn: <b>{player.charAt(0).toUpperCase() + player.slice(1)} Player</b></>
-            }
-        </p>
-        <div className='grid'>
-            {images.map((tile, idx) => (
-            <button
-                key={idx}
-                className="square"
-                style={{
-                    width: 60,
-                    height: 60,
-                    background: revealed[idx] ? '#f5cc9d' : '#4287f5',
-                    cursor: gameOver || revealed[idx] ? 'not-allowed' : 'pointer',
-                    padding: 0,
-                }}
-                onClick={() => tileClick(idx)}
-                disabled={gameOver || revealed[idx]}
-            >
-                {revealed[idx] ? (
-                <img
-                src={tile.img}
-                alt={tile.type}
-                style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover'
-                }}
-                />
-                ) : (
-                <span style={{ fontSize: 18 }}>{idx + 1}</span>
-                )}
-            </button>
-            ))}
+
+      {!playerSide && (
+        <div className="choose-side">
+          <p>Choose your side:</p>
+          <button className="side-btn chicken" onClick={() => setPlayerSide('chicken')}>Play as Chicken</button>
+          <button className="side-btn banana" onClick={() => setPlayerSide('banana')}>Play as Banana</button>
         </div>
-        <button className = 'restart' onClick={restart}>Restart Game</button>
+      )}
+
+      <p className="status-text">
+        {!playerSide
+          ? 'Pick your side to start the game!'
+          : gameOver
+            ? <strong className="winner-text">{winner} wins!</strong>
+            : 'Click your tiles! Clicking the wrong tile ends the game.'}
+      </p>
+
+      <div className="grid">
+        {tiles.map((tile, idx) => (
+          <button
+            key={idx}
+            className={`square ${revealed[idx] ? 'revealed' : ''}`}
+            onClick={() => handleTileClick(idx)}
+            disabled={gameOver || revealed[idx] || !playerSide}
+          >
+            {revealed[idx] ? (
+              <img src={tile.img} alt={tile.type} />
+            ) : (
+              <span>{idx + 1}</span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      <button className="restart-btn" onClick={handleRestart}>
+        Restart Game
+      </button>
+
+      <div className="control-buttons">
+        <button className="reveal-btn" onClick={handleRevealAll}>
+          Reveal All
+        </button>
+        <button className="reset-btn" onClick={handleResetBoard}>
+          Reset Board
+        </button>
+      </div>
     </div>
   );
 }
