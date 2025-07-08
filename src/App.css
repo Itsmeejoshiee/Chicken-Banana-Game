@@ -1,54 +1,174 @@
-.App {
+body {
+  background: #f2f4f8;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 800px;
+  margin: 50px auto;
+  padding: 32px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+h1 {
+  font-size: 2.2rem;
+  margin-bottom: 20px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.chicken-header {
+  color: #e53e3e;
 }
 
-.App-header {
-  background-color: white;
-  min-height: 100vh;
+.banana-header {
+  color: #ecc94b;
+}
+
+.and-header {
+  color: #333;
+  font-weight: 600;
+}
+
+.scoreboard {
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: yellow;
+  gap: 40px;
+  font-size: 1.2rem;
+  margin-bottom: 20px;
 }
 
-.App-link {
-  color: #61dafb;
+.score.chicken {
+  color: #c53030;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.score.banana {
+  color: #d69e2e;
+}
+
+.choose-side p {
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.side-btn {
+  margin: 0 10px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.side-btn.chicken {
+  background: #ffe5e5;
+}
+
+.side-btn.banana {
+  background: #fff9db;
+}
+
+.status-text {
+  margin-top: 10px;
+  margin-bottom: 20px;
+  font-size: 1rem;
+  color: #333;
+}
+
+.winner-text {
+  color: green;
+  font-weight: bold;
 }
 
 .grid {
+  display: grid;
+  grid-template-columns: repeat(6, 60px);
+  gap: 10px;
   justify-content: center;
-  width: 400px;
-  margin: auto;
+  margin-bottom: 30px;
 }
 
-.board{
-  text-align: center;
+.square {
+  width: 60px;
+  height: 60px;
+  background-color: #e2e8f0;
+  border: 2px solid #cbd5e0;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
   justify-content: center;
 }
-.board .restart{
-  margin: 20px auto;
+
+.square.revealed {
+  background-color: #f7fafc;
+}
+
+.square img {
+  width: 48px;
+  height: 48px;
+  border-radius: 4px;
+}
+
+button[disabled] {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.restart-btn {
+  padding: 10px 24px;
+  background: #3182ce;
+  color: white;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.restart-btn:hover {
+  background: #2c5282;
+}
+
+.control-buttons {
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.reveal-btn,
+.reset-btn {
+  padding: 10px 20px;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.reveal-btn {
+  background-color: #4a5568;
+  color: white;
+}
+
+.reveal-btn:hover {
+  background-color: #2d3748;
+}
+
+.reset-btn {
+  background-color: #718096;
+  color: white;
+}
+
+.reset-btn:hover {
+  background-color: #4a5568;
 }
 
 
